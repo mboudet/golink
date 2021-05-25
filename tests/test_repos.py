@@ -4,10 +4,10 @@ import tempfile
 
 import pytest
 
-from . import GopublishTestCase
+from . import GolinkTestCase
 
 
-class TestRepos(GopublishTestCase):
+class TestRepos(GolinkTestCase):
 
     temp_paths = ["/foo/bar/", "/repos/some/local/path/"]
 
@@ -39,13 +39,9 @@ class TestRepos(GopublishTestCase):
     def test_overlap(self, app):
         conf = {
             '/foo/bar': {
-                'public_folder': "/repos/some/local/path/public",
-                'copy_files': False,
                 'has_baricadr': True
             },
             '/foo/bar/some/thing': {
-                'public_folder': "/repos/some/local/path/public",
-                'copy_files': False,
                 'has_baricadr': True
             }
         }
@@ -56,13 +52,9 @@ class TestRepos(GopublishTestCase):
     def test_overlap_reverse(self, app):
         conf = {
             '/foo/bar/some/thing': {
-                'public_folder': "/repos/some/local/path/public",
-                'copy_files': False,
                 'has_baricadr': True
             },
             '/foo/bar': {
-                'public_folder': "/repos/some/local/path/public",
-                'copy_files': False,
                 'has_baricadr': True
             }
         }
@@ -81,13 +73,9 @@ class TestRepos(GopublishTestCase):
 
         conf = {
             '/foo/bar': {
-                'public_folder': "/repos/some/local/path/public",
-                'copy_files': False,
                 'has_baricadr': True
             },
             '/foo/bar/some/thing': {
-                'public_folder': "/repos/some/local/path/public",
-                'copy_files': False,
                 'has_baricadr': True
             }
         }
@@ -103,8 +91,6 @@ class TestRepos(GopublishTestCase):
             local_path_not_exist = local_path + '/test/'
             conf = {
                 local_path_not_exist: {
-                    'public_folder': local_path_not_exist + "/public",
-                    'copy_files': False,
                     'has_baricadr': True
                 }
             }

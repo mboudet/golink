@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from flask import (Blueprint, current_app, jsonify, make_response, request)
 
-from gopublish.utils import authenticate_user
+from golink.utils import authenticate_user
 
 import jwt
 

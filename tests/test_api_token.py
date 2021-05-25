@@ -1,9 +1,9 @@
 import jwt
 
-from . import GopublishTestCase
+from . import GolinkTestCase
 
 
-class TestApiToken(GopublishTestCase):
+class TestApiToken(GolinkTestCase):
 
     def test_get_token_no_body(self, client):
         """

@@ -4,9 +4,9 @@ from celery import Celery
 
 from flask import Flask, g
 
-from gopublish.api.file import file
-from gopublish.api.token import token
-from gopublish.api.view import view
+from golink.api.file import file
+from golink.api.token import token
+from golink.api.view import view
 
 from ldap3 import Connection, NONE, Server
 
@@ -15,6 +15,7 @@ import requests
 # Import model classes for flaks migrate
 from .db_models import PublishedFile  # noqa: F401
 from .extensions import (celery, db, mail, migrate)
+from .middleware import PrefixMiddleware
 from .model.repos import Repos
 
 
@@ -57,11 +58,13 @@ CONFIG_KEYS = (
     'LDAP_HOST',
     'LDAP_PORT',
     'LDAP_BASE_QUERY',
-    'TOKEN_DURATION'
+    'TOKEN_DURATION',
+    'ADMIN_USERS',
+    'PROXY_PREFIX'
 )
 
 
-def create_app(config=None, app_name='gopublish', blueprints=None, run_mode=None, is_worker=False):
+def create_app(config=None, app_name='golink', blueprints=None, run_mode=None, is_worker=False):
     app = Flask(app_name,
                 static_folder='static',
                 template_folder="templates"
@@ -73,9 +76,9 @@ def create_app(config=None, app_name='gopublish', blueprints=None, run_mode=None
         app.is_worker = is_worker
 
         configs = {
-            "dev": "gopublish.config.DevelopmentConfig",
-            "test": "gopublish.config.TestingConfig",
-            "prod": "gopublish.config.ProdConfig"
+            "dev": "golink.config.DevelopmentConfig",
+            "test": "golink.config.TestingConfig",
+            "prod": "golink.config.ProdConfig"
         }
         if run_mode:
             config_mode = run_mode
@@ -107,13 +110,22 @@ def create_app(config=None, app_name='gopublish', blueprints=None, run_mode=None
 
         app.config["TOKEN_DURATION"] = token_duration
 
+        admin_users = app.config.get("ADMIN_USERS", [])
+        if not type(admin_users) == list:
+            raise ValueError("ADMIN_USERS variable is not a list")
+
+        app.config["ADMIN_USERS"] = admin_users
+
         if 'TASK_LOG_DIR' in app.config:
             app.config['TASK_LOG_DIR'] = os.path.abspath(app.config['TASK_LOG_DIR'])
         else:
-            app.config['TASK_LOG_DIR'] = os.path.abspath(os.getenv('TASK_LOG_DIR', '/var/log/gopublish/tasks/'))
+            app.config['TASK_LOG_DIR'] = os.path.abspath(os.getenv('TASK_LOG_DIR', '/var/log/golink/tasks/'))
 
         if app.is_worker:
             os.makedirs(app.config['TASK_LOG_DIR'], exist_ok=True)
+
+        if app.config.get("PROXY_PREFIX"):
+            app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix=app.config.get("PROXY_PREFIX").rstrip("/"))
 
         if config_mode == "prod":
             # Check ldap
@@ -130,11 +142,11 @@ def create_app(config=None, app_name='gopublish', blueprints=None, run_mode=None
             if check_baricadr(app.config):
                 app.baricadr_enabled = True
 
-        # Load the list of gopublish repositories
+        # Load the list of golink repositories
         if 'GOPUBLISH_REPOS_CONF' in app.config:
             repos_file = app.config['GOPUBLISH_REPOS_CONF']
         else:
-            repos_file = os.getenv('GOPUBLISH_REPOS_CONF', '/etc/gopublish/repos.yml')
+            repos_file = os.getenv('GOPUBLISH_REPOS_CONF', '/etc/golink/repos.yml')
         app.repos = Repos(repos_file)
 
         if blueprints is None:

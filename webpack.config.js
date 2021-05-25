@@ -3,7 +3,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = (env, argv) => ({
     entry: [
-        './gopublish/react/src/index.jsx'
+        './golink/react/src/index.jsx'
     ],
     module: {
         rules: [
@@ -19,8 +19,8 @@ module.exports = (env, argv) => ({
         ]
     },
     output: {
-        path: __dirname + '/gopublish/static/js',
-        filename: 'gopublish.js'
+        path: __dirname + '/golink/static/js',
+        filename: 'golink.js'
     },
     resolve: {
         extensions: ['.js', '.jsx'],

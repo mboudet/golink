@@ -1,0 +1,52 @@
+name: Lint and test
+on: ["push", "pull_request"]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install flake8
+      run: pip install flake8
+    - name: Flake8
+      run: flake8 golink tests --ignore=E501,W504
+
+  node_test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2-beta
+      with:
+        node-version: '10'
+    - name: Install modules
+      run: |
+        npm install --silent
+    - name: Run ESLint
+      run: node_modules/.bin/eslint --config .eslintrc.yml "golink/react/src/**"
+
+  py_test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Prepare conf
+      run: cp local.example.cfg local.cfg
+    - name: Build containers
+      run: docker-compose -f docker-compose-test.yml build
+    - name: Launch containers
+      run: |
+        docker-compose -f docker-compose-test.yml up -d
+        sleep 15
+        docker-compose -f docker-compose-test.yml logs
+    - name: Run tests
+      run: |
+        docker-compose -f docker-compose-test.yml exec -T golink pytest -v --log-cli-level debug

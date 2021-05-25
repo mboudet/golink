@@ -1,4 +1,4 @@
-Welcome to Gopublish, the link generator for the GenOuest platform.
+Welcome to Golink, the link generator for the GenOuest platform.
 
 Features :
 

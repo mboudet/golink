@@ -2,14 +2,14 @@ import os
 import shutil
 import tempfile
 
-from gopublish.db_models import PublishedFile
-from gopublish.extensions import db
+from golink.db_models import PublishedFile
+from golink.extensions import db
 
-from . import GopublishTestCase
+from . import GolinkTestCase
 
 
-class TestApiView(GopublishTestCase):
-    template_repo = "/gopublish/test-data/test-repo/"
+class TestApiView(GolinkTestCase):
+    template_repo = "/golink/test-data/test-repo/"
     testing_repo = "/repos/myrepo"
     public_file = "/repos/myrepo/my_file_to_publish.txt"
     published_file = "/repos/myrepo/public/my_file_to_publish_v1.txt"
@@ -70,10 +70,8 @@ class TestApiView(GopublishTestCase):
             "owner": "root",
             "status": "available",
             "file_name": "my_file_to_publish.txt",
-            "version": 1,
             "size": size,
-            "hash": hash,
-            "siblings": []
+            "hash": hash
         }
 
     def test_download_existing_file(self, client):
@@ -109,7 +107,6 @@ class TestApiView(GopublishTestCase):
             'uri': self.file_id,
             'file_name': "my_file_to_publish.txt",
             'size': size,
-            'version': 1,
             'downloads': 0,
             'status': "available"
         }
@@ -132,7 +129,6 @@ class TestApiView(GopublishTestCase):
             'uri': self.file_id,
             'file_name': "my_file_to_publish.txt",
             'size': size,
-            'version': 1,
             'downloads': 0,
             'status': "available"
         }

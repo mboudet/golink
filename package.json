@@ -3,14 +3,14 @@
     "prod": "webpack --mode production",
     "dev": "webpack --mode development --watch"
   },
-  "name": "Go-publish",
+  "name": "Golink",
   "version": "1.0.0",
-  "description": "Public link maker",
+  "description": "Link maker",
   "author": "Mateo Boudet",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mboudet/gopublish"
+    "url": "https://github.com/mboudet/golink"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",

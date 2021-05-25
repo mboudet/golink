@@ -30,17 +30,17 @@ RUN apk add --no-cache \
     rm -r /root/.cache
 
 COPY docker/nginx.conf /etc/nginx/
-COPY docker/nginx_gopublish.conf /etc/nginx/conf.d/
+COPY docker/nginx_golink.conf /etc/nginx/conf.d/
 COPY docker/uwsgi.ini /etc/uwsgi/
 COPY docker/supervisord.conf /etc/supervisord.conf
 
-COPY . /gopublish
+COPY . /golink
 
-WORKDIR /gopublish
+WORKDIR /golink
 
 RUN npm install --silent
 RUN npm run --silent prod
 
-COPY start_gopublish.sh /start_gopublish.sh
+COPY start_golink.sh /start_golink.sh
 
-ENTRYPOINT "/start_gopublish.sh"
+ENTRYPOINT "/start_golink.sh"

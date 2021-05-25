@@ -2,7 +2,7 @@ class BaseConfig(object):
     DEBUG = False
     TESTING = False
 
-    GOPUBLISH_VERSION = "1.0.0"
+    GOLINK_VERSION = "1.0.0"
 
     # No trailing /
     BASE_URL = "localhost"
@@ -17,10 +17,13 @@ class BaseConfig(object):
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    LOG_FOLDER = "/var/log/gopublish/"
+    LOG_FOLDER = "/var/log/golink/"
 
     # Token validity duration (in hours)
     TOKEN_DURATION = 6
+
+    ADMIN_USERS = []
+    PROXY_PREFIX = ""
 
 
 class DevelopmentConfig(BaseConfig):

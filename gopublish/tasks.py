@@ -1,16 +1,15 @@
 import hashlib
 import os
-import shutil
 import time
 
 from celery.signals import task_postrun
 
 from flask_mail import Message
 
-from gopublish.app import create_app, create_celery
-from gopublish.db_models import PublishedFile
-from gopublish.extensions import db
-from gopublish.extensions import mail
+from golink.app import create_app, create_celery
+from golink.db_models import PublishedFile
+from golink.extensions import db
+from golink.extensions import mail
 
 import requests
 
@@ -34,7 +33,7 @@ Your publishing request on file '{path}' failed, with the following error:
 Contact the administrator for more info.
 Cheers
 """
-        msg = Message(subject="Gopublish: Publishing task on {path} failed".format(path=args[1]),
+        msg = Message(subject="Golink: Publishing task on {path} failed".format(path=args[1]),
                       body=body.format(path=args[1], error=str(exc)),
                       sender=app.config.get('MAIL_SENDER', 'from@example.com'),
                       recipients=args[2])
@@ -56,19 +55,8 @@ def publish_file(self, file_id, old_path, email=""):
     p_file.status = 'starting'
     db.session.commit()
     # Copy or move?
-    repo = app.repos.get_repo(p_file.repo_path)
 
-    new_path = os.path.join(repo.public_folder, p_file.stored_file_name)
-
-    if repo.copy_files:
-        shutil.copy(old_path, new_path)
-    else:
-        shutil.move(old_path, new_path)
-        os.symlink(new_path, old_path)
-
-    os.chmod(new_path, 0o0744)
-
-    file_md5 = md5(new_path)
+    file_md5 = md5(p_file.file_path)
     p_file.hash = file_md5
     p_file.status = 'available'
     db.session.commit()
@@ -79,7 +67,7 @@ Your publishing request on file '{path}' succeded.
 Your file should be available here : {file_url}
 Cheers
 """
-        msg = Message(subject="Gopublish: Publishing task on {path} succeded".format(path=old_path),
+        msg = Message(subject="Golink: Publishing task on {path} succeded".format(path=old_path),
                       body=body.format(path=old_path, file_url="%s/data/%s" % (app.config.get("BASE_URL"), p_file.id)),
                       sender=app.config.get('MAIL_SENDER', 'from@example.com'),
                       recipients=email)

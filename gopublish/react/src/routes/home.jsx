@@ -9,7 +9,7 @@ export default function Home() {
         <div className="container">
         <Card>
           <CardBody>
-            <CardTitle tag="h3"><i className="fas fa-home"></i> Welcome to Gopublish !</CardTitle>
+            <CardTitle tag="h3"><i className="fas fa-home"></i> Welcome to Golink !</CardTitle>
             <CardText>
                 You can search for a file name or uid using the search bar up top.
             </CardText>

@@ -1,4 +1,4 @@
-from gopublish.app import create_app, create_celery
+from golink.app import create_app, create_celery
 
 import pytest
 

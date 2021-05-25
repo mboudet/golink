@@ -1,19 +1,17 @@
 import os
 import shutil
-from time import sleep
 
-from gopublish.db_models import PublishedFile
-from gopublish.extensions import db
+from golink.db_models import PublishedFile
+from golink.extensions import db
 
-from . import GopublishTestCase
+from . import GolinkTestCase
 
 
-class TestApiPublish(GopublishTestCase):
+class TestApiPublish(GolinkTestCase):
 
-    template_repo = "/gopublish/test-data/test-repo/"
-    testing_repos = ["/repos/myrepo", "/repos/myrepo_copy"]
+    template_repo = "/golink/test-data/test-repo/"
+    testing_repos = ["/repos/myrepo"]
     public_file = "/repos/myrepo/my_file_to_publish.txt"
-    published_file = "/repos/myrepo/public/my_file_to_publish_v1.txt"
     file_id = ""
 
     def setup_method(self):
@@ -132,50 +130,6 @@ class TestApiPublish(GopublishTestCase):
         assert response.status_code == 400
         assert response.json == {'error': 'Path must not be a folder or a symlink'}
 
-    def test_publish_symlink(self, app, client):
-        """
-        Publish a symlink
-        """
-        symlink_path = "/repos/myrepo/mylink"
-        os.symlink(self.public_file, symlink_path)
-
-        data = {
-            'path': symlink_path
-        }
-        token = self.create_mock_token(app)
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer ' + token})
-
-        assert response.status_code == 400
-        assert response.json == {'error': 'Path must not be a folder or a symlink'}
-
-    def test_publish_incorrect_version(self, app, client):
-        """
-        Publish without a proper version
-        """
-        data = {
-            'path': self.public_file,
-            'version': "x"
-        }
-        token = self.create_mock_token(app)
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer ' + token})
-
-        assert response.status_code == 400
-        assert response.json == {'error': "Value x is not an integer > 0"}
-
-    def test_publish_duplicate_version(self, app, client):
-        """
-        Publish a duplicate (file and version)
-        """
-        data = {
-            'path': self.public_file,
-            'version': "2"
-        }
-        token = self.create_mock_token(app)
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer ' + token})
-
-        assert response.status_code == 400
-        assert response.json == {'error': "Error checking file : File is already published in that version"}
-
     def test_publish_wrong_email(self, app, client):
         """
         Publish with wrong email address
@@ -209,7 +163,6 @@ class TestApiPublish(GopublishTestCase):
         Try to publish a file in normal conditions
         """
         public_file = "/repos/myrepo/my_file_to_publish.txt"
-        published_file = "/repos/myrepo/public/my_file_to_publish_v1.txt"
 
         data = {
             'path': public_file
@@ -223,48 +176,3 @@ class TestApiPublish(GopublishTestCase):
         assert 'file_id' in data
 
         self.file_id = data['file_id']
-
-        wait = 0
-        while wait < 60:
-            sleep(2)
-
-            if os.path.exists(published_file):
-                break
-            wait += 1
-
-        assert os.path.exists(published_file)
-        assert os.path.islink(public_file)
-        assert os.readlink(public_file) == published_file
-
-    def test_publish_copy_success(self, app, client):
-        """
-        Try to publish a file in normal conditions
-        """
-        public_file = "/repos/myrepo_copy/my_file_to_publish.txt"
-        published_file = "/repos/myrepo_copy/public/my_file_to_publish_v1.txt"
-
-        data = {
-            'path': public_file,
-        }
-        token = self.create_mock_token(app)
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer ' + token})
-
-        assert response.status_code == 200
-        data = response.json
-        assert data['message'] == "File registering. It should be ready soon"
-        assert 'file_id' in data
-
-        self.file_id = data['file_id']
-
-        wait = 0
-        while wait < 60:
-            sleep(2)
-
-            if os.path.exists(published_file):
-                break
-            wait += 1
-
-        assert os.path.exists(published_file)
-        assert os.path.exists(public_file)
-        assert not os.path.islink(public_file)
-        assert self.md5(published_file) == self.md5(public_file)

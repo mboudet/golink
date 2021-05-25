@@ -3,12 +3,12 @@
 }
 
 
-.gopublish-table-wrapper {
+.golink-table-wrapper {
   width: auto;
   white-space: nowrap;
 }
 
-.gopublish-table {
+.golink-table {
   table-layout: auto !important;
 }
 

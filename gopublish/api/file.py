@@ -4,11 +4,11 @@ from email_validator import EmailNotValidError, validate_email
 
 from flask import (Blueprint, current_app, jsonify, make_response, request, send_file)
 
-from gopublish.db_models import PublishedFile
-from gopublish.extensions import db
-from gopublish.utils import get_celery_worker_status, is_valid_uuid, validate_token
+from golink.db_models import PublishedFile
+from golink.extensions import db
+from golink.utils import get_celery_worker_status, is_valid_uuid, validate_token
 
-from sqlalchemy import and_, desc, func, or_
+from sqlalchemy import desc, func, or_
 
 
 file = Blueprint('file', __name__, url_prefix='/')
@@ -58,7 +58,6 @@ def list_files():
             'uri': file.id,
             'file_name': file.file_name,
             'size': file.size,
-            'version': file.version,
             'status': file.status,
             'downloads': file.downloads,
             'publishing_date': file.publishing_date.strftime('%Y-%m-%d')
@@ -92,23 +91,15 @@ def view_file(file_id):
             datafile.status = "unavailable"
         db.session.commit()
 
-    siblings = []
-    # Should we check same owner?...
-    query = PublishedFile().query.order_by(desc(PublishedFile.publishing_date)).filter(and_(PublishedFile.repo_path == datafile.repo_path, PublishedFile.file_name == datafile.file_name, PublishedFile.version != datafile.version))
-    for file in query:
-        siblings.append({"uri": file.id, "version": file.version, "status": file.status, "publishing_date": file.publishing_date.strftime('%Y-%m-%d')})
-
     data = {
         "file": {
             "contact": datafile.contact,
             "owner": datafile.owner,
             "status": datafile.status,
             "file_name": datafile.file_name,
-            "version": datafile.version,
             "size": datafile.size,
             "hash": datafile.hash,
-            "publishing_date": datafile.publishing_date.strftime('%Y-%m-%d'),
-            "siblings": siblings
+            "publishing_date": datafile.publishing_date.strftime('%Y-%m-%d')
         }
     }
 
@@ -190,24 +181,14 @@ def publish_file():
     if not os.path.exists(request.json['path']):
         return make_response(jsonify({'error': 'File not found at path %s' % request.json['path']}), 400)
 
-    if os.path.islink(request.json['path']) or os.path.isdir(request.json['path']):
-        return make_response(jsonify({'error': 'Path must not be a folder or a symlink'}), 400)
+    if os.path.isdir(request.json['path']):
+        return make_response(jsonify({'error': 'Path must not be a folder'}), 400)
 
     repo = current_app.repos.get_repo(request.json['path'])
     if not repo:
         return make_response(jsonify({'error': 'File %s is not in any publishable repository' % request.json['path']}), 400)
 
-    version = 1
-    if 'version' in request.json:
-        version = request.json['version']
-        try:
-            version = int(version)
-            if not version > 0:
-                raise ValueError()
-        except ValueError:
-            return make_response(jsonify({'error': "Value %s is not an integer > 0" % version}), 400)
-
-    checks = repo.check_publish_file(request.json['path'], username=username, version=version)
+    checks = repo.check_publish_file(request.json['path'], username=username)
 
     if checks["error"]:
         return make_response(jsonify({'error': 'Error checking file : %s' % checks["error"]}), 400)
@@ -235,7 +216,7 @@ def publish_file():
         except EmailNotValidError as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
-    file_id = repo.publish_file(request.json['path'], username, version=version, email=email, contact=contact)
+    file_id = repo.publish_file(request.json['path'], username, email=email, contact=contact)
 
     res = "File registering. An email will be sent to you when the file is ready." if email else "File registering. It should be ready soon"
 
@@ -279,7 +260,6 @@ def search():
             'uri': file.id,
             'file_name': file.file_name,
             'size': file.size,
-            'version': file.version,
             'status': file.status,
             'downloads': file.downloads,
             "publishing_date": file.publishing_date.strftime('%Y-%m-%d')
