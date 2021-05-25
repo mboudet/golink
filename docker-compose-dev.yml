@@ -1,0 +1,68 @@
+# This is a development docker-compose.yml, don't use this one in production
+version: "3.4"
+
+x-gopublish-variables: &gopublish-variables
+    GOPUBLISH_RUN_MODE: "dev"
+    GOPUBLISH_REPOS_CONF: "test-data/sample_repos.yml"
+
+
+services:
+    gopublish:
+        build: ./
+        ports:
+            - 80:80
+        depends_on:
+            - redis
+            - db
+        environment: *gopublish-variables
+        volumes:
+            - repos:/repos/
+            - ./:/gopublish/
+            - ./docker/uwsgi_dev.ini:/etc/uwsgi/uwsgi.ini:ro
+
+    worker:
+        build:
+            context: .
+            dockerfile: docker_celery/Dockerfile
+        depends_on:
+            - redis
+            - db
+        entrypoint: python3
+        command: /opt/celery_dev_launch.py
+        environment: *gopublish-variables
+        volumes:
+            - repos:/repos/
+            - ./:/gopublish/:ro
+            - ./docker_celery/celery_dev_launch.py:/opt/celery_dev_launch.py:ro
+
+    monitor:
+        build:
+            context: .
+            dockerfile: docker_celery/Dockerfile
+        ports:
+            - "5555:5555"
+        entrypoint: celery
+        command: flower -A gopublish.tasks.celery --port=5555 --loglevel=info --autoreload
+        depends_on:
+            - redis
+        environment: *gopublish-variables
+        volumes:
+            - ./:/gopublish/:ro
+
+    redis:
+        image: redis:4.0
+
+    mailhog:
+        image: mailhog/mailhog:v1.0.0
+        ports:
+            - "1025:1025"
+            - "8025:8025"
+
+    db:
+        image: postgres:11-alpine
+        environment:
+          POSTGRES_PASSWORD: postgres
+
+volumes:
+    # A volume shared between gopublish app and worker
+    repos:

@@ -1,0 +1,29 @@
+# Requirements for the Flask webapp
+# base
+Flask
+Flask-Mail
+Jinja2
+Markdown
+PyYAML
+Werkzeug
+requests
+email_validator
+
+# Celery
+redis
+celery<5
+
+# SQLAlchemy
+Flask-SQLAlchemy
+flask-migrate
+psycopg2
+
+# Dates
+python-dateutil
+tzlocal
+
+# Tests
+pytest
+ldap3
+
+pyjwt
