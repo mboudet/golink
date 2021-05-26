@@ -67,7 +67,7 @@ class GolinkNavigation extends Component {
       <div>
         <Navbar color="dark" dark expand="md">
           <div className="container">
-            <NavbarBrand href="/"> Golink</NavbarBrand>
+            <NavbarBrand href={this.props.config.proxyPath == "/" ? "/" : this.props.config.proxyPath + "/"}> Golink</NavbarBrand>
             <Collapse navbar>
               <Nav className="mr-auto" navbar>
                 {links}

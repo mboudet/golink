@@ -1,4 +1,6 @@
 import os
+import grp
+import pwd
 
 from celery import Celery
 
@@ -218,6 +220,17 @@ def configure_logging(app):
         app.logger.setLevel(logging.INFO)
 
     info_log = os.path.join(app.config['LOG_FOLDER'], 'info.log')
+
+    if not os.path.exists(app.config['LOG_FOLDER']):
+        os.makedirs(app.config['LOG_FOLDER'])
+
+    # Ensure log file is writable by nginx (worker)
+    if not app.is_worker:
+        if not os.path.exists(info_log):
+            with open(info_log, 'w') as fp:
+                pass
+        os.chown(info_log, pwd.getpwnam("nginx").pw_uid, grp.getgrnam("nginx").gr_gid)
+
     info_file_handler = logging.handlers.RotatingFileHandler(info_log, maxBytes=100000, backupCount=10)
     info_file_handler.setLevel(logging.INFO)
     info_file_handler.setFormatter(logging.Formatter(

@@ -23,6 +23,8 @@ if ! [[ $DB_CONNECTABLE -eq 0 ]]; then
     exit "${DB_CONNECTABLE}"
 fi
 
+mkdir -p "$TASK_LOG_DIR"
+
 # Make sure the db schema is up-to-date
 flask db upgrade
 

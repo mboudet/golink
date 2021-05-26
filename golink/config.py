@@ -54,3 +54,9 @@ class ProdConfig(BaseConfig):
 
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@db/postgres'
     SQLALCHEMY_ECHO = False
+
+    MAIL_SERVER = ''
+    MAIL_PORT = ''
+    MAIL_USE_SSL = False
+    MAIL_SENDER = ''
+    MAIL_SUPPRESS_SEND = False
