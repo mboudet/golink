@@ -12,7 +12,6 @@ class TestApiView(GolinkTestCase):
     template_repo = "/golink/test-data/test-repo/"
     testing_repo = "/repos/myrepo"
     public_file = "/repos/myrepo/my_file_to_publish.txt"
-    published_file = "/repos/myrepo/public/my_file_to_publish_v1.txt"
     file_id = ""
 
     def setup_method(self):
@@ -55,8 +54,8 @@ class TestApiView(GolinkTestCase):
 
     def test_view_existing_file(self, client):
         self.file_id = self.create_mock_published_file(client, "available")
-        size = os.path.getsize(self.published_file)
-        hash = self.md5(self.published_file)
+        size = os.path.getsize(self.public_file)
+        hash = self.md5(self.public_file)
 
         url = "/api/view/" + self.file_id
         response = client.get(url)
@@ -87,11 +86,11 @@ class TestApiView(GolinkTestCase):
             with open(local_file, "wb") as f:
                 f.write(response.data)
 
-            assert self.md5(local_file) == self.md5(self.published_file)
+            assert self.md5(local_file) == self.md5(self.public_file)
 
     def test_search(self, client):
         self.file_id = self.create_mock_published_file(client, "available")
-        size = os.path.getsize(self.published_file)
+        size = os.path.getsize(self.public_file)
 
         url = "/api/search?file=my_file_to_publish"
         response = client.get(url)
@@ -113,7 +112,7 @@ class TestApiView(GolinkTestCase):
 
     def test_list(self, client):
         self.file_id = self.create_mock_published_file(client, "available")
-        size = os.path.getsize(self.published_file)
+        size = os.path.getsize(self.public_file)
 
         url = "/api/list"
         response = client.get(url)
