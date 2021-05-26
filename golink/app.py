@@ -29,7 +29,7 @@ BLUEPRINTS = (
 
 CONFIG_KEYS = (
     'SECRET_KEY',
-    'GOPUBLISH_REPOS_CONF',
+    'GOLINK_REPOS_CONF',
     'MAIL_SENDER',
     'MAIL_ADMIN',
     'BASE_URL',
@@ -83,10 +83,10 @@ def create_app(config=None, app_name='golink', blueprints=None, run_mode=None, i
         if run_mode:
             config_mode = run_mode
         else:
-            config_mode = os.getenv('GOPUBLISH_RUN_MODE', 'prod')
+            config_mode = os.getenv('GOLINK_RUN_MODE', 'prod')
 
-        if 'GOPUBLISH_RUN_MODE' not in app.config:
-            app.config['GOPUBLISH_RUN_MODE'] = config_mode
+        if 'GOLINK_RUN_MODE' not in app.config:
+            app.config['GOLINK_RUN_MODE'] = config_mode
 
         app.config.from_object(configs[config_mode])
 
@@ -143,10 +143,10 @@ def create_app(config=None, app_name='golink', blueprints=None, run_mode=None, i
                 app.baricadr_enabled = True
 
         # Load the list of golink repositories
-        if 'GOPUBLISH_REPOS_CONF' in app.config:
-            repos_file = app.config['GOPUBLISH_REPOS_CONF']
+        if 'GOLINK_REPOS_CONF' in app.config:
+            repos_file = app.config['GOLINK_REPOS_CONF']
         else:
-            repos_file = os.getenv('GOPUBLISH_REPOS_CONF', '/etc/golink/repos.yml')
+            repos_file = os.getenv('GOLINK_REPOS_CONF', '/etc/golink/repos.yml')
         app.repos = Repos(repos_file)
 
         if blueprints is None:
@@ -212,7 +212,7 @@ def configure_logging(app):
     from logging.handlers import SMTPHandler
 
     # Set log level
-    if app.config['GOPUBLISH_RUN_MODE'] == 'test':
+    if app.config['GOLINK_RUN_MODE'] == 'test':
         app.logger.setLevel(logging.DEBUG)
     else:
         app.logger.setLevel(logging.INFO)
@@ -235,7 +235,7 @@ def configure_logging(app):
     mail_handler = SMTPHandler(mailhost,
                                app.config['MAIL_SENDER'],
                                app.config['MAIL_ADMIN'],
-                               'GOPUBLISH failed!',
+                               'GOLINK failed!',
                                credentials)
     mail_handler.setLevel(logging.ERROR)
     mail_handler.setFormatter(logging.Formatter(

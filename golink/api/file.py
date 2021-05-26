@@ -16,8 +16,8 @@ file = Blueprint('file', __name__, url_prefix='/')
 
 @file.route('/api/status', methods=['GET'])
 def status():
-    mode = current_app.config.get("GOPUBLISH_RUN_MODE")
-    version = current_app.config.get("GOPUBLISH_VERSION", "0.0.1")
+    mode = current_app.config.get("GOLINK_RUN_MODE")
+    version = current_app.config.get("GOLINK_VERSION", "0.0.1")
     return make_response(jsonify({'version': version, 'mode': mode}), 200)
 
 

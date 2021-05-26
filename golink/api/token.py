@@ -19,7 +19,7 @@ def create_token():
         return make_response(jsonify({'error': 'Missing either username or password in body'}), 400)
 
     # Only check ldap in prod
-    if current_app.config['GOPUBLISH_RUN_MODE'] == "prod":
+    if current_app.config['GOLINK_RUN_MODE'] == "prod":
         if not authenticate_user(request.json.get("username"), request.json.get("password"), current_app.config):
             return make_response(jsonify({'error': 'Incorrect credentials'}), 401)
 

@@ -44,7 +44,7 @@ class Repo():
         # Check if user is in allowed users
         # If no allowed groups and no allowed_users: check if is owner
 
-        if current_app.config['GOPUBLISH_RUN_MODE'] == "prod":
+        if current_app.config['GOLINK_RUN_MODE'] == "prod":
             user_data = get_user_ldap_data(username, current_app.config)
 
             if user_data["error"]:
