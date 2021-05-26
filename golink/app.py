@@ -227,8 +227,7 @@ def configure_logging(app):
     # Ensure log file is writable by nginx (worker)
     if not app.is_worker:
         if not os.path.exists(info_log):
-            with open(info_log, 'w') as fp:
-                pass
+            open(info_log, 'a').close():
         os.chown(info_log, pwd.getpwnam("nginx").pw_uid, grp.getgrnam("nginx").gr_gid)
 
     info_file_handler = logging.handlers.RotatingFileHandler(info_log, maxBytes=100000, backupCount=10)
