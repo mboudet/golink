@@ -28,14 +28,6 @@ class TestRepos(GolinkTestCase):
         with pytest.raises(ValueError):
             app.repos.do_read_conf(str(conf))
 
-    def test_get_incomplete(self, app):
-        conf = {
-            '/foo/bar': []
-        }
-
-        with pytest.raises(ValueError):
-            app.repos.do_read_conf(str(conf))
-
     def test_overlap(self, app):
         conf = {
             '/foo/bar': {
@@ -96,9 +88,7 @@ class TestRepos(GolinkTestCase):
             }
 
             assert not os.path.exists(local_path_not_exist)
-            assert not os.path.exists(local_path_not_exist + "/public")
 
             app.repos.read_conf_from_str(str(conf))
 
             assert os.path.exists(local_path_not_exist)
-            assert os.path.exists(local_path_not_exist + "/public")

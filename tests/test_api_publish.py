@@ -128,7 +128,7 @@ class TestApiPublish(GolinkTestCase):
         response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer ' + token})
 
         assert response.status_code == 400
-        assert response.json == {'error': 'Path must not be a folder or a symlink'}
+        assert response.json == {'error': 'Path must not be a folder'}
 
     def test_publish_wrong_email(self, app, client):
         """
