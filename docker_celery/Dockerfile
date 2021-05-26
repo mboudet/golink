@@ -1,4 +1,4 @@
-FROM alpine:3.13
+FROM alpine:3.13.4
 
 MAINTAINER "Mateo Boudet <mateo.boudet@inrae.fr>"
 
