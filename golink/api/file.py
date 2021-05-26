@@ -77,7 +77,7 @@ def view_file(file_id):
         return make_response(jsonify({}), 404)
 
     repo = current_app.repos.get_repo(datafile.repo_path)
-    path = os.path.join(repo.public_folder, datafile.stored_file_name)
+    path = datafile.file_path
     current_app.logger.info("API call: Getting file %s" % file_id)
     if os.path.exists(path):
         if datafile.status == "pulling" and os.path.getsize(path) == datafile.size:
@@ -116,8 +116,7 @@ def download_file(file_id):
     if not datafile:
         return make_response(jsonify({}), 404)
 
-    repo = current_app.repos.get_repo(datafile.repo_path)
-    path = os.path.join(repo.public_folder, datafile.stored_file_name)
+    path = datafile.file_path
 
     if os.path.exists(path):
         datafile.downloads = datafile.downloads + 1
@@ -144,7 +143,7 @@ def pull_file(file_id):
             return jsonify({'error': str(e)}), 400
 
     repo = current_app.repos.get_repo(datafile.repo_path)
-    path = os.path.join(repo.public_folder, datafile.stored_file_name)
+    path = datafile.file_path
 
     if os.path.exists(path):
         return make_response(jsonify({'message': 'File already available'}), 200)
@@ -247,7 +246,7 @@ def search():
     if is_valid_uuid(file_name):
         files = PublishedFile().query.order_by(desc(PublishedFile.publishing_date)).filter(PublishedFile.id == file_name)
     else:
-        files = PublishedFile().query.order_by(desc(PublishedFile.publishing_date)).filter(or_(func.lower(PublishedFile.file_name).contains(file_name.lower()), func.lower(PublishedFile.stored_file_name).contains(file_name.lower())))
+        files = PublishedFile().query.order_by(desc(PublishedFile.publishing_date)).filter(or_(func.lower(PublishedFile.file_name).contains(file_name.lower())))
 
     total = files.count()
 
