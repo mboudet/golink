@@ -158,12 +158,12 @@ def pull_file(file_id):
 @file.route('/api/publish', methods=['POST'])
 def publish_file():
     # Auth stuff
-    auth = request.headers.get('Authorization')
+    auth = request.headers.get('X-Auth-Token')
     if not auth:
-        return make_response(jsonify({'error': 'Missing "Authorization" header'}), 401)
+        return make_response(jsonify({'error': 'Missing "X-Auth-Token" header'}), 401)
 
     if not auth.startswith("Bearer "):
-        return make_response(jsonify({'error': 'Invalid "Authorization" header: must start with "Bearer "'}), 401)
+        return make_response(jsonify({'error': 'Invalid "X-Auth-Token" header: must start with "Bearer "'}), 401)
 
     token = auth.split("Bearer ")[-1]
     data = validate_token(token, current_app.config)

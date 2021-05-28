@@ -39,7 +39,7 @@ class TestApiPublish(GolinkTestCase):
         }
         response = client.post('/api/publish', json=data, headers={'Test': 'some hash'})
         assert response.status_code == 401
-        assert response.json == {'error': 'Missing "Authorization" header'}
+        assert response.json == {'error': 'Missing "X-Auth-Token" header'}
 
     def test_publish_malformed_token_header(self, client):
         """
@@ -48,9 +48,9 @@ class TestApiPublish(GolinkTestCase):
         data = {
             'files': '/foo/bar'
         }
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'mytoken'})
+        response = client.post('/api/publish', json=data, headers={'X-Auth-Token': 'mytoken'})
         assert response.status_code == 401
-        assert response.json == {'error': 'Invalid "Authorization" header: must start with "Bearer "'}
+        assert response.json == {'error': 'Invalid "X-Auth-Token" header: must start with "Bearer "'}
 
     def test_publish_incorrect_token(self, client):
         """
@@ -59,7 +59,7 @@ class TestApiPublish(GolinkTestCase):
         data = {
             'files': '/foo/bar'
         }
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhIjoiYiJ9.1bSs1XuNia4apOO73KoixwVRM9YNgU4gdYWeZnAkALY'})
+        response = client.post('/api/publish', json=data, headers={'X-Auth-Token': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhIjoiYiJ9.1bSs1XuNia4apOO73KoixwVRM9YNgU4gdYWeZnAkALY'})
 
         assert response.status_code == 401
         assert response.json == {'error': 'Invalid token'}
@@ -73,7 +73,7 @@ class TestApiPublish(GolinkTestCase):
             'files': '/foo/bar'
         }
         token = self.create_mock_token(app, expire_now=True)
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer ' + token})
+        response = client.post('/api/publish', json=data, headers={'X-Auth-Token': 'Bearer ' + token})
 
         assert response.json == {'error': 'Expired token'}
         assert response.status_code == 401
@@ -83,7 +83,7 @@ class TestApiPublish(GolinkTestCase):
         Publish without body
         """
         token = self.create_mock_token(app)
-        response = client.post('/api/publish', headers={'Authorization': 'Bearer ' + token})
+        response = client.post('/api/publish', headers={'X-Auth-Token': 'Bearer ' + token})
 
         assert response.status_code == 400
         assert response.json == {'error': 'Missing body'}
@@ -96,7 +96,7 @@ class TestApiPublish(GolinkTestCase):
             'files': "/foo/bar"
         }
         token = self.create_mock_token(app)
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer ' + token})
+        response = client.post('/api/publish', json=data, headers={'X-Auth-Token': 'Bearer ' + token})
 
         assert response.status_code == 400
         assert response.json == {'error': 'Missing path'}
@@ -109,7 +109,7 @@ class TestApiPublish(GolinkTestCase):
             'path': "/foo/bar"
         }
         token = self.create_mock_token(app)
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer ' + token})
+        response = client.post('/api/publish', json=data, headers={'X-Auth-Token': 'Bearer ' + token})
 
         assert response.status_code == 400
         assert response.json == {'error': 'File not found at path /foo/bar'}
@@ -125,7 +125,7 @@ class TestApiPublish(GolinkTestCase):
             'path': path_to_folder
         }
         token = self.create_mock_token(app)
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer ' + token})
+        response = client.post('/api/publish', json=data, headers={'X-Auth-Token': 'Bearer ' + token})
 
         assert response.status_code == 400
         assert response.json == {'error': 'Path must not be a folder'}
@@ -139,7 +139,7 @@ class TestApiPublish(GolinkTestCase):
             'email': 'x'
         }
         token = self.create_mock_token(app)
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer ' + token})
+        response = client.post('/api/publish', json=data, headers={'X-Auth-Token': 'Bearer ' + token})
 
         assert response.status_code == 400
         assert response.json == {"error": "The email address is not valid. It must have exactly one @-sign."}
@@ -153,7 +153,7 @@ class TestApiPublish(GolinkTestCase):
             'contact': 'x'
         }
         token = self.create_mock_token(app)
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer ' + token})
+        response = client.post('/api/publish', json=data, headers={'X-Auth-Token': 'Bearer ' + token})
 
         assert response.status_code == 400
         assert response.json == {"error": "The email address is not valid. It must have exactly one @-sign."}
@@ -168,7 +168,7 @@ class TestApiPublish(GolinkTestCase):
             'path': public_file
         }
         token = self.create_mock_token(app)
-        response = client.post('/api/publish', json=data, headers={'Authorization': 'Bearer ' + token})
+        response = client.post('/api/publish', json=data, headers={'X-Auth-Token': 'Bearer ' + token})
 
         assert response.status_code == 200
         data = response.json
