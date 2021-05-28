@@ -121,7 +121,7 @@ def download_file(file_id):
     if os.path.exists(path):
         datafile.downloads = datafile.downloads + 1
         db.session.commit()
-        return send_file(path)
+        return send_file(path, as_attachment=True)
     else:
         return make_response(jsonify({'error': 'Missing file'}), 404)
 
