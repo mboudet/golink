@@ -52,7 +52,7 @@ export default class FilesTable extends Component {
     let content = this.props.files.map((item, i) => (
         <div key={i}>
         <Card>
-          <CardHeader tag="h4">{setStatus(item.status)} <Badge pill color="primary" className="float-right">v{item.version}</Badge></CardHeader>
+          <CardHeader tag="h4">{setStatus(item.status)}</CardHeader>
           <CardBody>
             <CardTitle tag="h3"><i className="fas fa-file"></i> File : <Link to={"/files/" + item.uri}>{item.file_name}</Link></CardTitle>
             <CardText>
