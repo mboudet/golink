@@ -16,11 +16,13 @@ class File extends Component {
   constructor (props) {
     super(props)
     this.utils = new Utils()
+    let base_url = this.props.config.proxyPath == "/" ? "/" : this.props.config.proxyPath + "/"
     this.state = {
       isLoading: true,
       file: {siblings: []},
-      email: ""
-    }
+      email: "",
+      download_url: base_url + 'api/view/' + this.props.match.params.uri
+    }    
     this.downloadFile = this.downloadFile.bind(this)
     this.pullFile = this.pullFile.bind(this)
     this.handleChangeEmail = this.handleChangeEmail.bind(this)
@@ -143,7 +145,7 @@ class File extends Component {
     status = <p></p>
     if (file.status == "available"){
       status = <Badge color="success">Available</Badge>
-      action = <Button size="sm" color="success" onClick={this.downloadFile}>Download file</Button>
+      action = <Button as="a" size="sm" color="success" href={this.state.download_url} target="_blank">Download file</Button>
     }
     if (file.status == "unavailable" || file.status == "failed"){
       status = <Badge color="danger">Unavailable</Badge>
