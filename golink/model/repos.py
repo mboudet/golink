@@ -32,7 +32,9 @@ class Repo():
         path = os.path.join(path, "")
         return path.startswith(os.path.join(self.local_path, ""))
 
-    def check_publish_file(self, file_path, username):
+    def check_publish_file(self, file_path, user_data):
+        username = user_data["username"]
+        is_admin = user_data["is_admin"]
 
         if not os.path.exists(file_path):
             return {"available": False, "error": "Target file %s does not exists" % file_path}
@@ -52,7 +54,7 @@ class Repo():
 
             has_access = False
 
-            if username in current_app.config.get('ADMIN_USERS'):
+            if is_admin:
                 has_access = True
 
             if (set(self.allowed_groups) & set(user_data["user_group_ids"])):
@@ -75,7 +77,9 @@ class Repo():
 
         return {"available": True, "error": ""}
 
-    def publish_file(self, file_path, username, version=1, email="", contact=""):
+    def publish_file(self, file_path, user_data, version=1, email="", contact=""):
+        username = user_data["username"]
+
         # Send task to copy file
         file_name = os.path.basename(file_path)
         name, ext = os.path.splitext(file_name)

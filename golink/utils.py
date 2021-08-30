@@ -84,7 +84,7 @@ def validate_token(token, config):
         return {"valid": False, "error": "Expired token"}
     except jwt.exceptions.InvalidTokenError:
         return {"valid": False, "error": "Invalid token"}
-    return {"valid": True, "username": payload['username']}
+    return {"valid": True, "username": payload['username'], "is_admin": payload['username'] in config.get('ADMIN_USERS')}
 
 
 def get_user_ldap_data(username, config):

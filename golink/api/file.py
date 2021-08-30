@@ -169,10 +169,9 @@ def publish_file():
         return make_response(jsonify({'error': 'Invalid "X-Auth-Token" header: must start with "Bearer "'}), 401)
 
     token = auth.split("Bearer ")[-1]
-    data = validate_token(token, current_app.config)
-    if not data['valid']:
-        return make_response(jsonify({'error': data['error']}), 401)
-    username = data['username']
+    user_data = validate_token(token, current_app.config)
+    if not user_data['valid']:
+        return make_response(jsonify({'error': user_data['error']}), 401)
 
     if not request.json:
         return make_response(jsonify({'error': 'Missing body'}), 400)
@@ -190,7 +189,7 @@ def publish_file():
     if not repo:
         return make_response(jsonify({'error': 'File %s is not in any publishable repository' % request.json['path']}), 400)
 
-    checks = repo.check_publish_file(request.json['path'], username=username)
+    checks = repo.check_publish_file(request.json['path'], user_data=user_data)
 
     if checks["error"]:
         return make_response(jsonify({'error': 'Error checking file : %s' % checks["error"]}), 400)
@@ -218,7 +217,7 @@ def publish_file():
         except EmailNotValidError as e:
             return make_response(jsonify({'error': str(e)}), 400)
 
-    file_id = repo.publish_file(request.json['path'], username, email=email, contact=contact)
+    file_id = repo.publish_file(request.json['path'], user_data, email=email, contact=contact)
 
     res = "File registering. An email will be sent to you when the file is ready." if email else "File registering. It should be ready soon"
 
