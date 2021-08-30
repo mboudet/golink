@@ -98,6 +98,7 @@ def view_file(file_id):
             "owner": datafile.owner,
             "status": datafile.status,
             "file_name": datafile.file_name,
+            "path": datafile.file_path,
             "size": datafile.size,
             "hash": datafile.hash,
             "publishing_date": datafile.publishing_date.strftime('%Y-%m-%d')

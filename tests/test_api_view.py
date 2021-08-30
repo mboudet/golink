@@ -69,6 +69,7 @@ class TestApiView(GolinkTestCase):
             "owner": "root",
             "status": "available",
             "file_name": "my_file_to_publish.txt",
+            "file_path": "/repos/myrepo/my_file_to_publish.txt",
             "size": size,
             "hash": hash
         }
