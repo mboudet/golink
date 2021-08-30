@@ -81,10 +81,15 @@ def view_file(file_id):
     path = datafile.file_path
     current_app.logger.info("API call: Getting file %s" % file_id)
     if os.path.exists(path):
+        # We don't know the status of Baricadr, so, check the size for completion
         if datafile.status == "pulling" and os.path.getsize(path) == datafile.size:
             datafile.status = "available"
             db.session.commit()
-    elif not datafile.status == "pulling":
+        # Should not happen: for testing/dev purposes
+        if datafile.status == "unavailable":
+            datafile.status = "available"
+            db.session.commit()
+    elif datafile.status == "available":
         if repo.has_baricadr:
             # TODO : Add baricadr check if the file exists
             datafile.status = "pullable"
@@ -119,6 +124,9 @@ def download_file(file_id):
         return make_response(jsonify({}), 404)
 
     path = datafile.file_path
+
+    if datafile.status == "unpublished":
+        return make_response(jsonify({}), 404)
 
     if os.path.exists(path):
         datafile.downloads = datafile.downloads + 1
@@ -224,6 +232,34 @@ def publish_file():
     return make_response(jsonify({'message': res, 'file_id': file_id}), 200)
 
 
+@file.route('/api/unpublish/<file_id>', methods=['DELETE'])
+def unpublish_file(file_id):
+
+    if not is_valid_uuid(file_id):
+        return make_response(jsonify({}), 404)
+    datafile = PublishedFile().query.get_or_404(file_id)
+
+    auth = request.headers.get('X-Auth-Token')
+    if not auth:
+        return make_response(jsonify({'error': 'Missing "X-Auth-Token" header'}), 401)
+
+    if not auth.startswith("Bearer "):
+        return make_response(jsonify({'error': 'Invalid "X-Auth-Token" header: must start with "Bearer "'}), 401)
+
+    token = auth.split("Bearer ")[-1]
+    user_data = validate_token(token, current_app.config)
+    if not user_data['valid']:
+        return make_response(jsonify({'error': user_data['error']}), 401)
+
+    if not (datafile.owner == user_data["username"] or user_data["is_admin"]):
+        return make_response(jsonify({}), 401)
+
+    datafile.status = "unpublished"
+    db.session.commit()
+
+    return make_response(jsonify({'message': 'File unpublished'}), 200)
+
+
 @file.route('/api/search', methods=['GET'])
 def search():
 
@@ -246,9 +282,9 @@ def search():
         return make_response(jsonify({'data': []}), 200)
 
     if is_valid_uuid(file_name):
-        files = PublishedFile().query.order_by(desc(PublishedFile.publishing_date)).filter(PublishedFile.id == file_name)
+        files = PublishedFile().query.order_by(desc(PublishedFile.publishing_date)).filter(PublishedFile.id == file_name).exclude(PublishedFile.status == "unpublished")
     else:
-        files = PublishedFile().query.order_by(desc(PublishedFile.publishing_date)).filter(or_(func.lower(PublishedFile.file_name).contains(file_name.lower())))
+        files = PublishedFile().query.order_by(desc(PublishedFile.publishing_date)).filter(or_(func.lower(PublishedFile.file_name).contains(file_name.lower()))).exclude(PublishedFile.status == "unpublished")
 
     total = files.count()
 
