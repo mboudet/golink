@@ -282,9 +282,9 @@ def search():
         return make_response(jsonify({'data': []}), 200)
 
     if is_valid_uuid(file_name):
-        files = PublishedFile().query.order_by(desc(PublishedFile.publishing_date)).filter(PublishedFile.id == file_name).exclude(PublishedFile.status == "unpublished")
+        files = PublishedFile().query.order_by(desc(PublishedFile.publishing_date)).filter(PublishedFile.id == file_name, PublishedFile.status != "unpublished")
     else:
-        files = PublishedFile().query.order_by(desc(PublishedFile.publishing_date)).filter(or_(func.lower(PublishedFile.file_name).contains(file_name.lower()))).exclude(PublishedFile.status == "unpublished")
+        files = PublishedFile().query.order_by(desc(PublishedFile.publishing_date)).filter(or_(func.lower(PublishedFile.file_name).contains(file_name.lower())), PublishedFile.status != "unpublished")
 
     total = files.count()
 
