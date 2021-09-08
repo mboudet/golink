@@ -25,6 +25,8 @@ class BaseConfig(object):
     ADMIN_USERS = []
     PROXY_PREFIX = ""
 
+    USE_X_SENDFILE = True
+
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
