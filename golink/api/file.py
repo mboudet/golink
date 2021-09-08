@@ -131,8 +131,10 @@ def download_file(file_id):
         datafile.downloads = datafile.downloads + 1
         db.session.commit()
         res = send_file(path, as_attachment=True)
-        res.headers['X-Accel-Redirect'] = path
-        res.headers['X-Accel-Buffering'] = "no"
+
+        if current_app.config.get("USE_X_SENDFILE"):
+            res.headers['X-Accel-Redirect'] = path
+            res.headers['X-Accel-Buffering'] = "no"
         return res
     else:
         return make_response(jsonify({'error': 'Missing file'}), 404)

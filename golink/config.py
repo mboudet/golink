@@ -25,8 +25,6 @@ class BaseConfig(object):
     ADMIN_USERS = []
     PROXY_PREFIX = ""
 
-    USE_X_SENDFILE = True
-
 
 class DevelopmentConfig(BaseConfig):
     DEBUG = True
@@ -62,3 +60,5 @@ class ProdConfig(BaseConfig):
     MAIL_USE_SSL = False
     MAIL_SENDER = ''
     MAIL_SUPPRESS_SEND = False
+
+    USE_X_SENDFILE = True
