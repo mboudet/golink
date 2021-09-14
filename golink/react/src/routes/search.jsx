@@ -13,7 +13,7 @@ class Search extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      config: this.props.location.state.config,
+      config: this.props.config,
       isLoading: true,
       files: [],
       offset: 0,
