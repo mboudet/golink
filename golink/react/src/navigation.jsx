@@ -8,6 +8,7 @@ class GolinkNavigation extends Component {
   constructor (props) {
     super(props)
     this.state = {
+      config: this.props.location.state.config,
       results: [],
       term: '',
       redirect: false
