@@ -21,10 +21,10 @@ class GolinkNavigation extends Component {
   }
 
   search(event) {
-    event.preventDefault(); 
+    event.preventDefault();
     if (! this.state.term == ''){
       let url = '/api/search?file=' + encodeURI(this.state.term);
-      axios.get(url, { cancelToken: new axios.CancelToken((c) => { this.cancelRequest = c }), params:{limit: this.props.config.perPage} })
+      axios.get(url, { baseURL: this.state.config.proxyPath, cancelToken: new axios.CancelToken((c) => { this.cancelRequest = c }), params:{limit: this.props.config.perPage} })
         .then(response => {
           let data = {
             results: response.data.files,
@@ -72,7 +72,7 @@ class GolinkNavigation extends Component {
               <Nav className="mr-auto" navbar>
                 {links}
               </Nav>
-            {searchBar}  
+            {searchBar}
             </Collapse>
           </div>
         </Navbar>
