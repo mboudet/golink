@@ -47,7 +47,7 @@ class Search extends Component {
 
   search(offset=0) {
     let url = '/api/search?file=' + encodeURI(this.state.query);
-    axios.get(url, { cancelToken: new axios.CancelToken((c) => { this.cancelRequest = c }), params: {offset: offset, limit: this.props.config.perPage }})
+    axios.get(url, {{ baseURL: this.state.config.proxyPath, cancelToken: new axios.CancelToken((c) => { this.cancelRequest = c }), params: {offset: offset, limit: this.props.config.perPage }})
       .then(response => {
         let data = {
           files: response.data.files,
