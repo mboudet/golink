@@ -273,7 +273,7 @@ def check_baricadr(config):
         url = "%s/version" % config.get("BARICADR_URL")
         res = requests.get(url, auth=(config.get("BARICADR_USER"), config.get("BARICADR_PASSWORD")))
         # TODO : Maybe restrict compatible versions here?
-        if res.status_code == 200 and "version" in res.json:
+        if res.status_code == 200 and "version" in res.json():
             baricadr_enabled = True
     return baricadr_enabled
 
