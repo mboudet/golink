@@ -16,7 +16,7 @@ class BaseConfig(object):
 
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {'pool_pre_ping': True}
+    SQLALCHEMY_ENGINE_OPTIONS = {'pool_pre_ping': True, pool_recycle=3600, connect_args={"keepalives": 1,"keepalives_idle": 30, "keepalives_interval": 10, "keepalives_count": 5}}
 
     LOG_FOLDER = "/var/log/golink/"
 
