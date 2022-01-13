@@ -24,7 +24,7 @@ RUN apk add --no-cache \
     rm -r /usr/lib/python*/ensurepip && \
     pip3 install --upgrade pip setuptools && \
     apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev postgresql-dev && \
-    pip3 install -r /tmp/requirements.txt && \
+    pip3 install --ignore-installed -r /tmp/requirements.txt && \
     apk --purge del .build-deps && \
     rm /etc/nginx/conf.d/default.conf && \
     rm -r /root/.cache
