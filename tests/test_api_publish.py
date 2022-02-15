@@ -25,7 +25,7 @@ class TestApiPublish(GolinkTestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_publish_missing_token_header(self, client):
+    def test_publish_missing_token_header(self, app, client):
         """
         Publish without the header
         """
@@ -36,7 +36,7 @@ class TestApiPublish(GolinkTestCase):
         assert response.status_code == 401
         assert response.json == {'error': 'Missing "X-Auth-Token" header'}
 
-    def test_publish_malformed_token_header(self, client):
+    def test_publish_malformed_token_header(self, app, client):
         """
         Publish without the correct header
         """
@@ -47,7 +47,7 @@ class TestApiPublish(GolinkTestCase):
         assert response.status_code == 401
         assert response.json == {'error': 'Invalid "X-Auth-Token" header: must start with "Bearer "'}
 
-    def test_publish_incorrect_token(self, client):
+    def test_publish_incorrect_token(self, app, client):
         """
         Publish without the correct token
         """

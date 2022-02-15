@@ -18,7 +18,7 @@ class GolinkTestCase():
         # Copy file in public repo
         size = os.path.getsize(public_file)
 
-        pf = PublishedFile(file_name=file_name, repo_path="/repos/myrepo", version=1, size=size, hash=hash, status=status, owner="root")
+        pf = PublishedFile(file_name=file_name, file_path=public_file, repo_path="/repos/myrepo", version=1, size=size, hash=hash, status=status, owner="root")
 
         tag_list = []
         if tags:
@@ -40,10 +40,10 @@ class GolinkTestCase():
         hash = self.md5(public_file)
         # Copy file in public repo
         size = os.path.getsize(public_file)
-        pf = PublishedFile(file_name=file_name, repo_path="/repos/myrepo", version=1, size=size, hash=hash, status=status, owner="root")
+        pf = PublishedFile(file_name=file_name, file_path=public_file, repo_path="/repos/myrepo", version=1, size=size, hash=hash, status=status, owner="root")
         db.session.add(pf)
         db.session.commit()
-        pf2 = PublishedFile(file_name=file_name, repo_path="/repos/myrepo", version=2, size=size, hash=hash, status=status, owner="root", version_of=pf)
+        pf2 = PublishedFile(file_name=file_name, file_path=public_file, repo_path="/repos/myrepo", version=2, size=size, hash=hash, status=status, owner="root", version_of=pf)
         db.session.add(pf)
         db.session.commit()
 
