@@ -23,7 +23,7 @@ class TestApiView(GolinkTestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_view_incorrect_id(self, client):
+    def test_view_incorrect_id(self, app, client):
         """
         Get file with incorrect id
         """
@@ -35,7 +35,7 @@ class TestApiView(GolinkTestCase):
         assert response.status_code == 404
         assert response.json == {}
 
-    def test_view_missing_file(self, client):
+    def test_view_missing_file(self, app, client):
         """
         Get file with correct id, but file not created
         """
@@ -47,7 +47,7 @@ class TestApiView(GolinkTestCase):
         assert response.status_code == 404
         assert response.json == {}
 
-    def test_view_existing_file(self, client):
+    def test_view_existing_file(self, app, client):
         self.file_id = self.create_mock_published_file(client, "available")
         size = os.path.getsize(self.public_file)
         hash = self.md5(self.public_file)
@@ -70,7 +70,7 @@ class TestApiView(GolinkTestCase):
             "tags": []
         }
 
-    def test_view_existing_file_with_siblings(self, client):
+    def test_view_existing_file_with_siblings(self, app, client):
         file_ids = self.create_mock_published_dual_files("available")
         size = os.path.getsize(self.public_file)
         hash = self.md5(self.public_file)
@@ -131,7 +131,7 @@ class TestApiView(GolinkTestCase):
             "tags": []
         }
 
-    def test_download_existing_file(self, client):
+    def test_download_existing_file(self, app, client):
         self.file_id = self.create_mock_published_file(client, "available")
 
         url = "/api/download/" + self.file_id
@@ -146,7 +146,7 @@ class TestApiView(GolinkTestCase):
 
             assert self.md5(local_file) == self.md5(self.public_file)
 
-    def test_download_unpublished_file(self, client):
+    def test_download_unpublished_file(self, app, client):
         file_id = self.create_mock_published_file("unpublished")
 
         url = "/api/download/" + file_id
@@ -154,7 +154,7 @@ class TestApiView(GolinkTestCase):
 
         assert response.status_code == 404
 
-    def test_list(self, client):
+    def test_list(self, app, client):
         self.file_id = self.create_mock_published_file(client, "available")
         size = os.path.getsize(self.public_file)
 
