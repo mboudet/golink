@@ -21,11 +21,29 @@ class File extends Component {
       isLoading: true,
       file: {siblings: []},
       email: "",
-      download_url: base_url + 'api/download/' + this.props.match.params.uri
-    }    
+      download_url: base_url + 'api/view/' + this.props.match.params.uri
+    }
+    this.downloadFile = this.downloadFile.bind(this)
     this.pullFile = this.pullFile.bind(this)
     this.handleChangeEmail = this.handleChangeEmail.bind(this)
     this.cancelRequest
+  }
+
+  downloadFile(event){
+    let uri = this.props.match.params.uri;
+    let requestUrl = '/api/download/' + uri;
+    axios.get(requestUrl, {baseURL: this.props.config.proxyPath, cancelToken: new axios.CancelToken((c) => { this.cancelRequest = c }) })
+      .then((response) => {
+        FileDownload(response.data, this.state.file.file_name)
+      })
+      .catch(error => {
+        console.log(error, error.response.data.errorMessage)
+        this.setState({
+          error: true,
+          errorMessage: error.response.data.errorMessage,
+          status: error.response.status,
+        })
+      })
   }
 
   pullFile(event){
@@ -109,7 +127,7 @@ class File extends Component {
             </div>
         )
     }
-    
+
     let uri = this.props.match.params.uri;
     let file = this.state.file
     let contact = ""
@@ -127,17 +145,20 @@ class File extends Component {
     status = <p></p>
     if (file.status == "available"){
       status = <Badge color="success">Available</Badge>
-      action = <Button as="a" size="sm" color="success" href={this.state.download_url} target="_blank">Download file</Button>
+            action = <Button as="a" size="sm" color="success" href={this.state.download_url} target="_blank">Download file</Button>
     }
     if (file.status == "unavailable" || file.status == "failed"){
       status = <Badge color="danger">Unavailable</Badge>
+    }
+    if (file.status == "unpublished"){
+      status = <Badge color="warning">Unavailable</Badge>
     }
     if (file.status == "pulling"){
       status = <Badge color="secondary">Pulling</Badge>
     }
     if (file.status == "pullable"){
-      status = <Badge color="started">Pullable</Badge>
-      action = <Button size="sm" color="started" disabled={this.validateEmail()} onClick={this.pullFile}>Pull file</Button>
+      status = <Badge color="primary">Pullable</Badge>
+      action = <Button size="sm" color="primary" disabled={this.validateEmail()} onClick={this.pullFile}>Pull file</Button>
       form = <FormGroup>
                 <Label for="email">Optional notification email</Label>
                 <Input type="email" name="email" id="email" placeholder="Your email" value={this.state.email} onChange={this.handleChangeEmail} />
@@ -147,13 +168,84 @@ class File extends Component {
       status = <Badge color="warning">Publishing</Badge>
     }
 
+    if (file.siblings.length){
+      let filesColumns = [{
+          dataField: 'version',
+          text: 'File version',
+          sort: true,
+          formatter: (cell, row) => {
+            return <h5><Badge pill color="primary">v{row.version}</Badge></h5>
+          }
+        },{
+          dataField: 'publishing_date',
+          text: 'Publishing date',
+          sort: true
+        }, {
+          dataField: 'status',
+          text: 'Status',
+          sort: true,
+          formatter: (cell, row) => {
+            let pill = ""
+            if (row.status == "available"){
+              pill = <Badge color="success">Available</Badge>
+            }
+            if (row.status == "unavailable" || file.status == "failed"){
+              pill = <Badge color="danger">Unavailable</Badge>
+            }
+            if (row.status == "pulling"){
+              pill = <Badge color="secondary">Pulling</Badge>
+            }
+            if (row.status == "pullable"){
+              pill = <Badge color="started">Pullable</Badge>
+            }
+            if (row.status == "starting" || file.status == "hashing"){
+              pill = <Badge color="warning">Publishing</Badge>
+            }
+            return <h5>{pill}</h5>
+          }
+        }, {
+          dataField: 'uri',
+          text: '',
+          formatter: (cell, row) => {
+             return <Link to={"/files/" + row.uri}><Button type="button" color="primary"><i className="fa fa-external-link-alt" aria-hidden="true"></i> Show</Button></Link>
+          },
+        }]
+      let defaultSorted = [{
+        dataField: 'version',
+        order: 'desc'
+      }]
+
+      siblings = (
+        <Card>
+          <CardBody>
+            <CardTitle tag="h2">Other versions of this file ({file.siblings.length})</CardTitle>
+            <CardText tag="div" className="text-center">
+              <br/>
+              <BootstrapTable
+              classes="gopublish-table"
+              wrapperClasses="gopublish-table-wrapper"
+              tabIndexCell
+              bootstrap4
+              keyField='uri'
+              data={file.siblings}
+              columns={filesColumns}
+              defaultSorted={defaultSorted}
+              pagination={paginationFactory()}
+            />
+            </CardText>
+          </CardBody>
+        </Card>
+      )
+    }
+
+
     return (
       <div className="container">
         <Card>
-          <CardHeader tag="h4">{status}</CardHeader>
+          <CardHeader tag="h4">{status} <Badge pill color="primary" className="float-right">v{file.version}</Badge></CardHeader>
           <CardBody>
             <CardTitle tag="h2">Information about file {file.file_name}</CardTitle>
-            <CardText>    
+            <CardText>
                 File size: {this.utils.humanFileSize(file.size, true)}
                 <br />
                 {contact}
@@ -168,6 +260,7 @@ class File extends Component {
             </CardText>
           </CardBody>
         </Card>
+        {siblings}
       </div>
     )
   }
@@ -179,4 +272,3 @@ File.propTypes = {
 }
 
 export default withRouter(File)
-

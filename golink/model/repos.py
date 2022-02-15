@@ -2,7 +2,7 @@ import os
 
 from flask import current_app
 
-from golink.db_models import PublishedFile
+from golink.db_models import PublishedFile, Tag
 from golink.extensions import db
 from golink.utils import get_user_ldap_data
 
@@ -77,7 +77,7 @@ class Repo():
 
         return {"available": True, "error": ""}
 
-    def publish_file(self, file_path, user_data, version=1, email="", contact=""):
+    def publish_file(self, file_path, user_data, version=1, email="", contact="", linked_to=None, tags=set()):
         username = user_data["username"]
 
         # Send task to copy file
@@ -85,7 +85,20 @@ class Repo():
         name, ext = os.path.splitext(file_name)
         size = os.path.getsize(file_path)
 
-        pf = PublishedFile(file_name=file_name, file_path=file_path, repo_path=self.local_path, owner=username, size=size)
+        pf = PublishedFile(file_name=file_name, file_path=file_path, repo_path=self.local_path, version=version, owner=username, size=size, version_of=linked_to)
+        if tags:
+            missing_tag = False
+            tag_list = []
+            for tag in tags:
+                tag_entity = Tag.query.filter_by(tag=tag).first()
+                if not tag_entity:
+                    missing_tag = True
+                    tag_entity = Tag(tag=tag)
+                    db.session.add(tag_entity)
+                tag_list.append(tag_entity)
+            if missing_tag:
+                db.session.commit()
+            pf.tags = tag_list
         if contact:
             pf.contact = contact
         db.session.add(pf)

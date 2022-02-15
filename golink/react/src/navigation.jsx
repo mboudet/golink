@@ -4,12 +4,13 @@ import { Link, Redirect, withRouter } from 'react-router-dom'
 import {Button, Collapse, Navbar, NavbarBrand, Nav, NavItem, Form, Input} from 'reactstrap'
 import PropTypes from 'prop-types'
 
-class GolinkNavigation extends Component {
+class GopublishNavigation extends Component {
   constructor (props) {
     super(props)
     this.state = {
       config: this.props.config,
       results: [],
+      tags: [],
       term: '',
       redirect: false
     };
@@ -25,10 +26,11 @@ class GolinkNavigation extends Component {
     event.preventDefault();
     if (! this.state.term == ''){
       let url = '/api/search?file=' + encodeURI(this.state.term);
-      axios.get(url, { baseURL: this.state.config.proxyPath, cancelToken: new axios.CancelToken((c) => { this.cancelRequest = c }), params:{limit: this.props.config.perPage} })
+      axios.get(url, { baseURL: this.props.config.proxyPath, cancelToken: new axios.CancelToken((c) => { this.cancelRequest = c }), params:{limit: this.props.config.perPage} })
         .then(response => {
           let data = {
             results: response.data.files,
+            tags: response.data.tags
           };
           this.setState(data);
           this.props.history.push({
@@ -36,6 +38,7 @@ class GolinkNavigation extends Component {
             state: {
               results: this.state.results,
               query: this.state.term,
+              tags: this.state.tags,
               pageCount: Math.ceil(response.data.total / this.props.config.perPage),
               total: response.data.total
             }
@@ -68,7 +71,7 @@ class GolinkNavigation extends Component {
       <div>
         <Navbar color="dark" dark expand="md">
           <div className="container">
-            <NavbarBrand href={this.props.config.proxyPath == "/" ? "/" : this.props.config.proxyPath + "/"}> Golink</NavbarBrand>
+            <NavbarBrand href="/"> Gopublish</NavbarBrand>
             <Collapse navbar>
               <Nav className="mr-auto" navbar>
                 {links}
@@ -83,9 +86,9 @@ class GolinkNavigation extends Component {
   }
 }
 
-GolinkNavigation.propTypes = {
+GopublishNavigation.propTypes = {
   config: PropTypes.object,
   history: PropTypes.object
 }
 
-export default withRouter(GolinkNavigation)
+export default withRouter(GopublishNavigation)
