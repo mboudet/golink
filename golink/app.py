@@ -7,6 +7,7 @@ from celery import Celery
 from flask import Flask, g
 
 from golink.api.file import file
+from golink.api.tag import tag
 from golink.api.token import token
 from golink.api.view import view
 
@@ -25,6 +26,7 @@ __all__ = ('create_app', 'create_celery', )
 
 BLUEPRINTS = (
     file,
+    tag,
     token,
     view
 )
