@@ -222,8 +222,8 @@ class File extends Component {
             <CardText tag="div" className="text-center">
               <br/>
               <BootstrapTable
-              classes="gopublish-table"
-              wrapperClasses="gopublish-table-wrapper"
+              classes="golink-table"
+              wrapperClasses="golink-table-wrapper"
               tabIndexCell
               bootstrap4
               keyField='uri'

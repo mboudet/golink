@@ -4,7 +4,7 @@ import { Link, Redirect, withRouter } from 'react-router-dom'
 import {Button, Collapse, Navbar, NavbarBrand, Nav, NavItem, Form, Input} from 'reactstrap'
 import PropTypes from 'prop-types'
 
-class GopublishNavigation extends Component {
+class GolinkNavigation extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -71,7 +71,7 @@ class GopublishNavigation extends Component {
       <div>
         <Navbar color="dark" dark expand="md">
           <div className="container">
-            <NavbarBrand href="/"> Gopublish</NavbarBrand>
+            <NavbarBrand href="/"> Golink</NavbarBrand>
             <Collapse navbar>
               <Nav className="mr-auto" navbar>
                 {links}
@@ -86,9 +86,9 @@ class GopublishNavigation extends Component {
   }
 }
 
-GopublishNavigation.propTypes = {
+GolinkNavigation.propTypes = {
   config: PropTypes.object,
   history: PropTypes.object
 }
 
-export default withRouter(GopublishNavigation)
+export default withRouter(GolinkNavigation)

@@ -7,7 +7,7 @@ from . import GolinkTestCase
 
 
 class TestApiSearch(GolinkTestCase):
-    template_repo = "/gopublish/test-data/test-repo/"
+    template_repo = "/golink/test-data/test-repo/"
     testing_repo = "/repos/myrepo"
     public_file = "/repos/myrepo/my_file_to_publish.txt"
 

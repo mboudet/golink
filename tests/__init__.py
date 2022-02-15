@@ -2,8 +2,8 @@ import hashlib
 import os
 from datetime import datetime, timedelta
 
-from gopublish.db_models import PublishedFile, Tag
-from gopublish.extensions import db
+from golink.db_models import PublishedFile, Tag
+from golink.extensions import db
 
 import jwt
 
