@@ -26,7 +26,7 @@ class TestApiToken(GolinkTestCase):
         response = client.post(url, json=body)
 
         assert response.status_code == 400
-        assert response.json.get("error") == "Missing either username or password in body"
+        assert response.json.get("error") == "Missing either username, password or api_key in body"
 
     def test_get_token_no_password(self, app, client):
         """
@@ -38,7 +38,7 @@ class TestApiToken(GolinkTestCase):
         response = client.post(url, json=body)
 
         assert response.status_code == 400
-        assert response.json.get("error") == "Missing either username or password in body"
+        assert response.json.get("error") == "Missing either username, password or api_key in body"
 
     def test_get_token(self, app, client):
         """

@@ -198,7 +198,7 @@ def view_file(file_id):
     datafile = PublishedFile().query.get_or_404(file_id)
 
     repo = current_app.repos.get_repo(datafile.repo_path)
-    path = os.path.join(repo.public_folder, str(datafile.id))
+    path = datafile.file_path
     current_app.logger.info("API call: Getting file %s" % file_id)
     if os.path.exists(path):
         # We don't know the status of Baricadr, so, check the size for completion
@@ -237,6 +237,7 @@ def view_file(file_id):
             "contact": datafile.contact,
             "owner": datafile.owner,
             "status": datafile.status,
+            "path": datafile.file_path,
             "file_name": datafile.file_name,
             "version": datafile.version,
             "size": datafile.size,
@@ -393,7 +394,7 @@ def publish_file():
 
     res = "File registering. An email will be sent to you when the file is ready." if email else "File registering. It should be ready soon"
 
-    return make_response(jsonify({'message': res, 'file_id': file_id}), 200)
+    return make_response(jsonify({'message': res, 'file_id': file_id, 'version': version}), 200)
 
 
 @file.route('/api/unpublish/<file_id>', methods=['DELETE'])

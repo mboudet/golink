@@ -23,7 +23,7 @@ python-dateutil
 tzlocal
 
 # Tests
-pytest
+pytest<7.0
 ldap3
 
 pyjwt
