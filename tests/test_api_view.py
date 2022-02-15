@@ -2,7 +2,6 @@ import os
 import shutil
 import tempfile
 
-from golink.db_models import PublishedFile
 from golink.extensions import db
 
 from . import GolinkTestCase
@@ -12,7 +11,6 @@ class TestApiView(GolinkTestCase):
     template_repo = "/golink/test-data/test-repo/"
     testing_repo = "/repos/myrepo"
     public_file = "/repos/myrepo/my_file_to_publish.txt"
-    file_id = ""
 
     def setup_method(self):
         if os.path.exists(self.testing_repo):
@@ -22,11 +20,8 @@ class TestApiView(GolinkTestCase):
     def teardown_method(self):
         if os.path.exists(self.testing_repo):
             shutil.rmtree(self.testing_repo)
-        if self.file_id:
-            for file in PublishedFile.query.filter(PublishedFile.id == self.file_id):
-                db.session.delete(file)
-            db.session.commit()
-            self.file_id = ""
+        db.session.remove()
+        db.drop_all()
 
     def test_view_incorrect_id(self, client):
         """
@@ -71,7 +66,69 @@ class TestApiView(GolinkTestCase):
             "file_name": "my_file_to_publish.txt",
             "path": "/repos/myrepo/my_file_to_publish.txt",
             "size": size,
-            "hash": hash
+            "hash": hash,
+            "tags": []
+        }
+
+    def test_view_existing_file_with_siblings(self, client):
+        file_ids = self.create_mock_published_dual_files("available")
+        size = os.path.getsize(self.public_file)
+        hash = self.md5(self.public_file)
+
+        url = "/api/view/" + file_ids[0]
+        response = client.get(url)
+
+        assert response.status_code == 200
+        data = response.json['file']
+        data.pop('publishing_date', None)
+        assert "siblings" in data and len(data['siblings']) == 1
+        data['siblings'][0].pop('publishing_date', None)
+
+        assert data == {
+            "contact": None,
+            "owner": "root",
+            "status": "available",
+            "file_name": "my_file_to_publish.txt",
+            "path": "/repos/myrepo/my_file_to_publish.txt",
+            "version": 1,
+            "size": size,
+            "hash": hash,
+            "siblings": [
+                {
+                    "uri": file_ids[1],
+                    "version": 2,
+                    "status": "available"
+                }
+            ],
+            "tags": []
+        }
+
+        url = "/api/view/" + file_ids[1]
+        response = client.get(url)
+
+        assert response.status_code == 200
+        data = response.json['file']
+        data.pop('publishing_date', None)
+        assert "siblings" in data and len(data['siblings']) == 1
+        data['siblings'][0].pop('publishing_date', None)
+
+        assert data == {
+            "contact": None,
+            "owner": "root",
+            "status": "available",
+            "file_name": "my_file_to_publish.txt",
+            "path": "/repos/myrepo/my_file_to_publish.txt",
+            "version": 2,
+            "size": size,
+            "hash": hash,
+            "siblings": [
+                {
+                    "uri": file_ids[0],
+                    "version": 1,
+                    "status": "available"
+                }
+            ],
+            "tags": []
         }
 
     def test_download_existing_file(self, client):
@@ -89,27 +146,13 @@ class TestApiView(GolinkTestCase):
 
             assert self.md5(local_file) == self.md5(self.public_file)
 
-    def test_search(self, client):
-        self.file_id = self.create_mock_published_file(client, "available")
-        size = os.path.getsize(self.public_file)
+    def test_download_unpublished_file(self, client):
+        file_id = self.create_mock_published_file("unpublished")
 
-        url = "/api/search?file=my_file_to_publish"
+        url = "/api/download/" + file_id
         response = client.get(url)
 
-        assert response.status_code == 200
-
-        data = response.json['files']
-
-        data[0].pop('publishing_date', None)
-
-        assert len(data) == 1
-        assert data[0] == {
-            'uri': self.file_id,
-            'file_name': "my_file_to_publish.txt",
-            'size': size,
-            'downloads': 0,
-            'status': "available"
-        }
+        assert response.status_code == 404
 
     def test_list(self, client):
         self.file_id = self.create_mock_published_file(client, "available")
@@ -130,5 +173,6 @@ class TestApiView(GolinkTestCase):
             'file_name': "my_file_to_publish.txt",
             'size': size,
             'downloads': 0,
-            'status': "available"
+            'status': "available",
+            "tags": []
         }

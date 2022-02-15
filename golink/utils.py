@@ -64,7 +64,10 @@ def is_valid_uuid(uuid_to_test, version=4):
     return str(uuid_obj) == uuid_to_test
 
 
-def authenticate_user(username, password, config):
+def authenticate_user(username, password, api_key, config):
+    if api_key and api_key in config.get("ADMIN_API_KEYS"):
+        return True
+
     server = Server(config.get("LDAP_HOST"), config.get("LDAP_PORT", 389), get_info=NONE)
     conn = Connection(server, auto_bind=True)
     user = conn.search(config.get("LDAP_BASE_QUERY"), '(uid=%s)' % username, attributes=['uidNumber'], size_limit=1, time_limit=10)

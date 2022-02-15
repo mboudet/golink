@@ -1,7 +1,6 @@
 import os
 import shutil
 
-from golink.db_models import PublishedFile
 from golink.extensions import db
 
 from . import GolinkTestCase
@@ -12,7 +11,6 @@ class TestApiPublish(GolinkTestCase):
     template_repo = "/golink/test-data/test-repo/"
     testing_repos = ["/repos/myrepo"]
     public_file = "/repos/myrepo/my_file_to_publish.txt"
-    file_id = ""
 
     def setup_method(self):
         for repo in self.testing_repos:
@@ -24,11 +22,8 @@ class TestApiPublish(GolinkTestCase):
         for repo in self.testing_repos:
             if os.path.exists(repo):
                 shutil.rmtree(repo)
-        if self.file_id:
-            for file in PublishedFile.query.filter(PublishedFile.id == self.file_id):
-                db.session.delete(file)
-            db.session.commit()
-            self.file_id = ""
+        db.session.remove()
+        db.drop_all()
 
     def test_publish_missing_token_header(self, client):
         """
@@ -175,4 +170,49 @@ class TestApiPublish(GolinkTestCase):
         assert data['message'] == "File registering. It should be ready soon"
         assert 'file_id' in data
 
-        self.file_id = data['file_id']
+    def test_update_malformed_id(self, app, client):
+        public_file = "/repos/myrepo/my_file_to_publish.txt"
+
+        data = {
+            'path': public_file,
+            'linked_to': "fakeid"
+        }
+
+        token = self.create_mock_token(app)
+        response = client.post('/api/publish', json=data, headers={'X-Auth-Token': 'Bearer ' + token})
+
+        assert response.status_code == 400
+        assert response.json['error'] == "linked_to fakeid is not a valid id"
+
+    def test_update_wrong_id(self, app, client):
+        public_file = "/repos/myrepo/my_file_to_publish.txt"
+
+        data = {
+            'path': public_file,
+            'linked_to': "f2ecc13f-3038-4f78-8c84-ab881a0b567d"
+        }
+
+        token = self.create_mock_token(app)
+        response = client.post('/api/publish', json=data, headers={'X-Auth-Token': 'Bearer ' + token})
+
+        assert response.status_code == 404
+        assert response.json['error'] == "linked_to f2ecc13f-3038-4f78-8c84-ab881a0b567d file does not exists"
+
+    def test_update(self, app, client):
+        file_id = self.create_mock_published_file("available")
+
+        public_file = "/repos/myrepo/my_file_to_publish.txt"
+        data = {
+            'path': public_file,
+            'linked_to': file_id
+        }
+
+        token = self.create_mock_token(app)
+        response = client.post('/api/publish', json=data, headers={'X-Auth-Token': 'Bearer ' + token})
+
+        assert response.status_code == 200
+        data = response.json
+        assert data['message'] == "File registering. It should be ready soon"
+        assert 'file_id' in data
+
+        assert data['version'] == 2

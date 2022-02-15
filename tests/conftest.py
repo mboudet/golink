@@ -1,4 +1,5 @@
 from golink.app import create_app, create_celery
+from golink.extensions import db
 
 import pytest
 
@@ -22,10 +23,8 @@ def client():
     current_app = create_app(run_mode='test')
     create_celery(current_app)
 
-    # Establish an application context before running the tests.
-    ctx = current_app.app_context()
-    ctx.push()
-
-    client = current_app.test_client()
+    with current_app.test_client() as client:
+        with current_app.app_context():
+            db.create_all()
 
     yield client

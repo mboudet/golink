@@ -48,6 +48,9 @@ class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@db/postgres'
     SQLALCHEMY_ECHO = False
 
+    ADMIN_USERS = ["adminuser"]
+    ADMIN_API_KEYS = ["fakeapikey"]
+
 
 class ProdConfig(BaseConfig):
     DEBUG = False
