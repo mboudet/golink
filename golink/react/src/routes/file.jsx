@@ -21,7 +21,7 @@ class File extends Component {
       isLoading: true,
       file: {siblings: [], tags: []},
       email: "",
-      download_url: base_url + 'api/view/' + this.props.match.params.uri
+      download_url: base_url + 'api/download/' + this.props.match.params.uri
     }
     this.downloadFile = this.downloadFile.bind(this)
     this.pullFile = this.pullFile.bind(this)
@@ -171,7 +171,9 @@ class File extends Component {
 
     if (file.tags.length){
       tags = file.tags.map((tag, j) => {
-        return (<Badge pill color="info" key="{j}">{tag}</Badge>)
+        let color = this.utils.stringToHexColor(tag)
+        let textColor = this.utils.isDarkColor(color) ? "white" : "black"
+        return (<Badge pill style={{"background-color": color, "color": textColor}} key="{j}">{tag}</Badge>)
       })
     }
 

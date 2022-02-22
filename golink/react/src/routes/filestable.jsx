@@ -51,7 +51,9 @@ export default class FilesTable extends Component {
 
     const getTags = (tags) => {
         let tag_badges = tags.map((tag, j) => {
-            return (<Badge pill color="info" key="{j}">{tag}</Badge>)
+          let color = this.utils.stringToHexColor(tag)
+          let textColor = this.utils.isDarkColor(color) ? "white" : "black"
+          return (<Badge pill style={{"background-color": color, "color": textColor}} key="{j}">{tag}</Badge>)
         })
         return tag_badges
     }
