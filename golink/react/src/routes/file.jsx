@@ -23,27 +23,9 @@ class File extends Component {
       email: "",
       download_url: base_url + 'api/download/' + this.props.match.params.uri
     }
-    this.downloadFile = this.downloadFile.bind(this)
     this.pullFile = this.pullFile.bind(this)
     this.handleChangeEmail = this.handleChangeEmail.bind(this)
     this.cancelRequest
-  }
-
-  downloadFile(event){
-    let uri = this.props.match.params.uri;
-    let requestUrl = '/api/download/' + uri;
-    axios.get(requestUrl, {baseURL: this.props.config.proxyPath, cancelToken: new axios.CancelToken((c) => { this.cancelRequest = c }) })
-      .then((response) => {
-        FileDownload(response.data, this.state.file.file_name)
-      })
-      .catch(error => {
-        console.log(error, error.response.data.errorMessage)
-        this.setState({
-          error: true,
-          errorMessage: error.response.data.errorMessage,
-          status: error.response.status,
-        })
-      })
   }
 
   pullFile(event){
