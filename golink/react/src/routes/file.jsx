@@ -19,7 +19,7 @@ class File extends Component {
     let base_url = this.props.config.proxyPath == "/" ? "/" : this.props.config.proxyPath + "/"
     this.state = {
       isLoading: true,
-      file: {siblings: []},
+      file: {siblings: [], tags: []},
       email: "",
       download_url: base_url + 'api/view/' + this.props.match.params.uri
     }
@@ -135,6 +135,7 @@ class File extends Component {
     let form = ""
     let action = ""
     let siblings = ""
+    let tags = "None"
 
     if (file.contact){
       contact = <>Contact: {file.contact} </>
@@ -166,6 +167,12 @@ class File extends Component {
     }
     if (file.status == "starting" || file.status == "hashing"){
       status = <Badge color="warning">Publishing</Badge>
+    }
+
+    if (file.tags.length){
+      tags = file.tags.map((tag, j) => {
+        return (<Badge pill color="info" key="{j}">{tag}</Badge>)
+      })
     }
 
     if (file.siblings.length){
@@ -238,7 +245,6 @@ class File extends Component {
       )
     }
 
-
     return (
       <div className="container">
         <Card>
@@ -253,6 +259,8 @@ class File extends Component {
                 Publishing date: {file.publishing_date}
                 <br />
                 MD5: {file.hash}
+                <br />
+                Tags: {tags}
                 <br />
                 {form}
                 <br />

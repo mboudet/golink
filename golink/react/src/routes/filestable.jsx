@@ -49,6 +49,13 @@ export default class FilesTable extends Component {
         return status
     }
 
+    const getTags = (tags) => {
+        let tag_badges = tags.map((tag, j) => {
+            return (<Badge pill color="info" key="{j}">{tag}</Badge>)
+        })
+        return tag_badges
+    }
+
     let content = this.props.files.map((item, i) => (
         <div key={i}>
         <Card>
@@ -61,6 +68,8 @@ export default class FilesTable extends Component {
             Published : {item.publishing_date}
             <br/>
             Downloads : {item.downloads}
+	    <br/>
+            Tags : {getTags(item.tags)}
             </CardText>
           </CardBody>
         </Card>
