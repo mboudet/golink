@@ -49,4 +49,4 @@ jobs:
         docker-compose -f docker-compose-test.yml logs
     - name: Run tests
       run: |
-        docker-compose -f docker-compose-test.yml exec -T golink pytest -v --log-cli-level debug
+        docker-compose -f docker-compose-test.yml exec -T golink pytest -v --log-cli-level debug -o faulthandler_timeout=60
