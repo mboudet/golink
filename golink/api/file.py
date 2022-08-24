@@ -94,7 +94,7 @@ def list_files():
 @is_valid_uid
 def tag_file(file_id):
 
-    if not request.json:
+    if not request.get_json(silent=True):
         return make_response(jsonify({'error': 'Missing body'}), 400)
 
     tags = request.json.get('tags', [])
@@ -145,7 +145,7 @@ def tag_file(file_id):
 @is_valid_uid
 def untag_file(file_id):
 
-    if not request.json:
+    if not request.get_json(silent=True):
         return make_response(jsonify({'error': 'Missing body'}), 400)
 
     tags = request.json.get('tags', [])
@@ -310,7 +310,7 @@ def pull_file(file_id):
 @token_required
 def publish_file():
 
-    if not request.json:
+    if not request.get_json(silent=True):
         return make_response(jsonify({'error': 'Missing body'}), 400)
 
     if 'path' not in request.json:
