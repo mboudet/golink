@@ -12,7 +12,7 @@ token = Blueprint('token', __name__, url_prefix='/')
 @token.route('/api/token/create', methods=['POST'])
 def create_token():
 
-    if not request.json:
+    if not request.get_json(silent=True):
         return make_response(jsonify({'error': 'Missing body'}), 400)
 
     if not (request.json.get("username") and (request.json.get("password") or request.json.get("api_key"))):
