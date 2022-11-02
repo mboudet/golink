@@ -22,7 +22,7 @@ class PublishedFile(db.Model):
     # Maybe store it as text? Or encoded?
     file_name = db.Column(db.String(255), index=True, nullable=False)
     file_path = db.Column(db.String(255), index=True, nullable=False)
-    version = db.Column(db.Integer, index=True, default=1, nullable=False)
+    version = db.Column(db.Integer, index=True, default=1, nullable=False, server_default=1)
     version_of_id = db.Column(UUID(as_uuid=True), db.ForeignKey('published_file.id'))  # parent company ID
     version_of = db.relationship('PublishedFile', remote_side='PublishedFile.id', backref=db.backref('subversions'))
     # To check quickly if managed by baricadr
